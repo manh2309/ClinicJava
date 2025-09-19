@@ -23,9 +23,8 @@ public class AuthenticationController {
     AuthenticationService authenticationService;
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@Valid @RequestBody AuthRequest authRequest) {
-        authenticationService.register(authRequest);
-        return ResponseEntity.ok("Register successful!");
+    public ApiResponse<Object> register(@Valid @RequestBody AuthRequest authRequest) {
+        return authenticationService.register(authRequest);
     }
 
     @PostMapping("/login")

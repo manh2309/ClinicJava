@@ -17,6 +17,8 @@ import org.example.clinicjava.service.AuthenticationService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -26,17 +28,25 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     PasswordEncoder passwordEncoder;
     JwtUtil jwtUtil;
     @Override
-    public void register(AuthRequest request) {
+    public ApiResponse<Object> register(AuthRequest request) {
         if (accountRepository.findByUsername(request.getUsername()).isPresent()) {
             throw new AppException(StatusCode.BAD_REQUEST.withMessage(Constant.ERROR_MESSAGE.ACCOUNT_EXISTS));
         }
-        Role role = roleRepository.findByRoleName(Constant.ROLE_NAME.ROLE_PATIENT);
+        Role role = roleRepository.findByRoleName(Constant.ROLE_NAME.ROLE_PATIENT)
+                .orElseThrow(() -> new AppException(StatusCode.BAD_REQUEST.withMessage(Constant.ERROR_MESSAGE.ROLE_EXISTS)));
         Account account = new Account();
         account.setUsername(request.getUsername());
         account.setPassword(passwordEncoder.encode(request.getPassword()));
         account.setFullName(request.getFullName());
         account.setRoleId(role.getRoleId());
+        account.setIsActive(1L);
+        account.setCreatedDate(LocalDateTime.now());
         accountRepository.save(account);
+        return ApiResponse.builder()
+                .code(StatusCode.SUCCESS.getCode())
+                .message(StatusCode.SUCCESS.getMessage())
+                .result("Tạo tài khoản thành công")
+                .build();
     }
 
     @Override

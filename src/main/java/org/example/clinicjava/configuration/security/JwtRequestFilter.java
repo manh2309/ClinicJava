@@ -4,6 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.example.clinicjava.ultils.account.CustomUserDetails;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
@@ -35,8 +36,9 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             String role = jwtUtil.getRoleFromToken(jwt);
+            Long accountId = jwtUtil.getAccountIdFromToken(jwt);
             if (jwtUtil.validateToken(jwt, username)) {
-                UserDetails userDetails = new User(username, "", Collections.singletonList(() -> role));
+                UserDetails userDetails = new CustomUserDetails(username, "", Collections.singletonList(() -> role), accountId);
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

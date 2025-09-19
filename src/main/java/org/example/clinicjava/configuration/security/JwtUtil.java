@@ -45,6 +45,10 @@ public class JwtUtil {
         return getClaimFromToken(token, claims -> claims.get("role", String.class));
     }
 
+    public Long getAccountIdFromToken(String token) {
+        return getClaimFromToken(token, claims -> claims.get("accountId", Long.class));
+    }
+
     public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = Jwts.parserBuilder()
                 .setSigningKey(getSignKey())

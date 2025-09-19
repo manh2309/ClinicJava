@@ -15,7 +15,20 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
         format_sql: true
-
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: manhnt.eledevo@gmail.com
+    password: asjy oqga pyfc rzev
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          ssl:
+            trust: smtp.gmail.com
+        debug: true
 application:
   security:
     jwt:
@@ -23,4 +36,3 @@ application:
       expiration: 86400000  # 1 ng?y
       refresh-token:
         expiration: 604800000  # 7 ng?y
-
