@@ -7,7 +7,6 @@ import lombok.experimental.FieldDefaults;
 import org.example.clinicjava.dto.request.AccountRequest;
 import org.example.clinicjava.dto.response.ApiResponse;
 import org.example.clinicjava.service.AccountService;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
