@@ -5,16 +5,23 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.clinicjava.constant.Constant;
 import org.example.clinicjava.dto.request.AccountRequest;
+import org.example.clinicjava.dto.request.UpdateAccountRequest;
+import org.example.clinicjava.dto.response.AccountResponse;
 import org.example.clinicjava.dto.response.ApiResponse;
+import org.example.clinicjava.dto.response.PageResponse;
 import org.example.clinicjava.entity.Account;
 import org.example.clinicjava.entity.Role;
 import org.example.clinicjava.exception.AppException;
 import org.example.clinicjava.exception.StatusCode;
+import org.example.clinicjava.mapper.AccountMapper;
 import org.example.clinicjava.repository.AccountRepository;
 import org.example.clinicjava.repository.RoleRepository;
 import org.example.clinicjava.service.AccountService;
+import org.example.clinicjava.ultils.CommonUtils;
 import org.example.clinicjava.ultils.account.CustomUserDetails;
 import org.example.clinicjava.ultils.email.EmailService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -34,13 +41,13 @@ public class AccountServiceImpl implements AccountService {
     RoleRepository roleRepository;
     PasswordEncoder passwordEncoder;
     EmailService emailService;
+    AccountMapper accountMapper;
     @Override
     public ApiResponse<Object> createAccount(AccountRequest request) {
         if (accountRepository.findByUsername(request.getUsername()).isPresent()) {
             throw new AppException(StatusCode.BAD_REQUEST.withMessage(Constant.ERROR_MESSAGE.ACCOUNT_EXISTS));
         }
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        CustomUserDetails userDetails  = CommonUtils.getUserDetails();
 
         String password = generatePassword(8);
         Role role = roleRepository.findByRoleName(Constant.ROLE_NAME.ROLE_DOCTOR)
@@ -53,11 +60,13 @@ public class AccountServiceImpl implements AccountService {
         account.setPhone(request.getPhone());
         account.setRoleId(role.getRoleId());
         account.setIsActive(1L);
-        account.setCreatedBy(userDetails.getAccountId());
-        account.setCreatedDate(LocalDateTime.now());
+        if (userDetails != null) {
+            account.setCreatedBy(userDetails.getAccountId());
+            account.setCreatedDate(LocalDateTime.now());
+        }
 
         accountRepository.save(account);
-        String subject = "Tài khoản bác sĩ được tạo thành công";
+        String subject = Constant.MESSAGE.DOCTOR_CREATE_ACCOUNT;
         String body = String.format(
                 Constant.MESSAGE.MAIL_BODY,
                 request.getFullName(),
@@ -70,7 +79,62 @@ public class AccountServiceImpl implements AccountService {
         return ApiResponse.builder()
                 .code(StatusCode.SUCCESS.getCode())
                 .message(StatusCode.SUCCESS.getMessage())
-                .result("Tài khoản bác sĩ được tạo thành công")
+                .result(Constant.MESSAGE.DOCTOR_CREATE_ACCOUNT)
+                .build();
+    }
+
+    @Override
+    public ApiResponse<Object> searchList(Pageable pageable) {
+        Page<AccountResponse> result = accountRepository.searchList(pageable).map(accountMapper::toDto);
+        return ApiResponse.builder()
+                .code(StatusCode.SUCCESS.getCode())
+                .message(StatusCode.SUCCESS.getMessage())
+                .result(new PageResponse<>(result.getContent(), result.getTotalPages(), result.getTotalElements()))
+                .build();
+    }
+
+    @Override
+    public ApiResponse<Object> updateAccount(Long accountId, UpdateAccountRequest request) {
+        Account existingAccount = accountRepository.findById(accountId)
+                .orElseThrow(() -> new AppException(StatusCode.BAD_REQUEST.withMessage(Constant.ERROR_MESSAGE.DATA_NOT_FOUND)));
+        if (accountRepository.findByEmailAndAccountId(request.getEmail(), accountId)) {
+            throw new AppException(StatusCode.BAD_REQUEST.withMessage(Constant.ERROR_MESSAGE.ACCOUNT_EMAIL_DUPPLICATE));
+        }
+        accountMapper.updateEntityFromDto(request, existingAccount);
+
+        CustomUserDetails userDetails  = CommonUtils.getUserDetails();
+        if (userDetails != null) {
+            existingAccount.setModifiedBy(userDetails.getAccountId());
+            existingAccount.setModifiedDate(LocalDateTime.now());
+        }
+
+        accountRepository.save(existingAccount);
+
+        return ApiResponse.builder()
+                .code(StatusCode.SUCCESS.getCode())
+                .message(StatusCode.SUCCESS.getMessage())
+                .result(Constant.MESSAGE.UPDATE_ACCOUNT)
+                .build();
+    }
+
+    @Override
+    public ApiResponse<Object> deleteAccount(Long accountId) {
+        Account existingAccount = accountRepository.findById(accountId)
+                .orElseThrow(() -> new AppException(StatusCode.BAD_REQUEST.withMessage(Constant.ERROR_MESSAGE.DATA_NOT_FOUND)));
+        existingAccount.setIsActive(0L);
+
+        CustomUserDetails userDetails  = CommonUtils.getUserDetails();
+        if (userDetails != null) {
+            existingAccount.setModifiedBy(userDetails.getAccountId());
+            existingAccount.setModifiedDate(LocalDateTime.now());
+        }
+
+        accountRepository.save(existingAccount);
+
+        return ApiResponse.builder()
+                .code(StatusCode.SUCCESS.getCode())
+                .message(StatusCode.SUCCESS.getMessage())
+                .result(Constant.MESSAGE.DELETE_ACCOUNT)
                 .build();
     }
 

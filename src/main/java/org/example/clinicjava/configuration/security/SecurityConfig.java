@@ -39,9 +39,11 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/v1/auth/**").permitAll()
+                        .requestMatchers("/v1/auth/register", "/v1/auth/login").permitAll()
+                        .requestMatchers("/v1/auth/logout").authenticated()
                         .requestMatchers("/v1/appointments/**").hasAnyAuthority("ROLE_PATIENT", "ROLE_DOCTOR")
-                        .requestMatchers("/v1/account/create").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers("/v1/account/create", "v1/account/list", "v1/account/delete/{id}").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers("/v1/account/update/{id}").hasAnyAuthority("ROLE_PATIENT", "ROLE_DOCTOR", "ROLE_ADMIN")
                         .requestMatchers("/v1/orders/**").hasAuthority("ROLE_PATIENT")
                         .requestMatchers("/v1/payment/**").hasAuthority("ROLE_PATIENT")
                         .requestMatchers("/notfication/**").permitAll() // WebSocket endpoint

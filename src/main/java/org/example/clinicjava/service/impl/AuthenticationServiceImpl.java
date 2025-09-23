@@ -9,15 +9,19 @@ import org.example.clinicjava.dto.request.AuthRequest;
 import org.example.clinicjava.dto.response.ApiResponse;
 import org.example.clinicjava.entity.Account;
 import org.example.clinicjava.entity.Role;
+import org.example.clinicjava.entity.TokenBlackList;
 import org.example.clinicjava.exception.AppException;
 import org.example.clinicjava.exception.StatusCode;
 import org.example.clinicjava.repository.AccountRepository;
 import org.example.clinicjava.repository.RoleRepository;
+import org.example.clinicjava.repository.TokenBlacklistRepository;
 import org.example.clinicjava.service.AuthenticationService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +29,7 @@ import java.time.LocalDateTime;
 public class AuthenticationServiceImpl implements AuthenticationService {
     AccountRepository accountRepository;
     RoleRepository roleRepository;
+    TokenBlacklistRepository tokenBlacklistRepository;
     PasswordEncoder passwordEncoder;
     JwtUtil jwtUtil;
     @Override
@@ -64,4 +69,28 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .result(token)
                 .build();
     }
+
+    @Override
+    public ApiResponse<Object> logout(String token) {
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+        Instant expiration = jwtUtil.getClaimFromToken(token, claims -> claims.getExpiration().toInstant());
+        LocalDateTime expireAt = LocalDateTime.ofInstant(expiration, ZoneId.systemDefault());
+
+        TokenBlackList blacklist = TokenBlackList.builder()
+                .token(token)
+                .expireAt(expireAt)
+                .createdDate(LocalDateTime.now())
+                .build();
+
+        tokenBlacklistRepository.save(blacklist);
+
+        return ApiResponse.builder()
+                .code(200)
+                .message("Đăng xuất thành công")
+                .build();
+    }
+
+
 }

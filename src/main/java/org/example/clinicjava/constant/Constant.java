@@ -12,6 +12,7 @@ public class Constant {
         public static final String ACCOUNT_FULL_NAME_REGEX = "Tên chỉ được chứa chữ và khoảng trắng";
         public static final String ACCOUNT_EMAIL_REQUIRED = "Email không được để trống";
         public static final String ACCOUNT_EMAIL_FORMAT = "Email không đúng định dạng";
+        public static final String ACCOUNT_EMAIL_DUPPLICATE = "Email này đã được sử dụng";
         public static final String ROLE_EXISTS = "Chức vụ không tồn tại";
         public static final String PHONE_REGEX = "Số điện thoại phải hợp lệ (VD: 0987654321 hoặc +84987654321)";
     }
@@ -24,5 +25,8 @@ public class Constant {
 
     public static final class MESSAGE {
         public static final String MAIL_BODY = "Xin chào %s,\n\nTài khoản bác sĩ của bạn đã được tạo:\n\nUsername: %s\nPassword: %s\n\nVui lòng đổi mật khẩu sau khi đăng nhập.";
+        public static final String DOCTOR_CREATE_ACCOUNT = "Tài khoản bác sĩ được tạo thành công";
+        public static final String UPDATE_ACCOUNT = "Cập nhật tài khoản thành công";
+        public static final String DELETE_ACCOUNT = "Xóa tài khoản thành công";
     }
 }
