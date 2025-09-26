@@ -3,6 +3,7 @@ package org.example.clinicjava.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -24,8 +25,8 @@ public class Appointment {
     @Column(name = "DOCTOR_ID")
     private Long doctorId;
 
-    @Column(name = "SCHEDULE_TIME")
-    private LocalDateTime scheduleTime;
+    @Column(name = "APPOINTMENT_DATE")
+    private LocalDateTime appointmentDate;
 
     @Column(name = "PATIENT_NAME")
     private String patientName;
@@ -33,8 +34,17 @@ public class Appointment {
     @Column(name = "PATIENT_AGE")
     private Integer patientAge;
 
+    @Column(name = "FEE")
+    private BigDecimal fee;
+
     @Column(name = "STATUS")
     private Long status;
+
+    @Column(name = "IS_ACTIVE")
+    private Long isActive;
+
+    @Column(name = "IS_DRAFT")
+    private Long isDraft;
 
     @Column(name = "NOTE")
     private String note;

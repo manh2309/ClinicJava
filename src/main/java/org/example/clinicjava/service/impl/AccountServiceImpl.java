@@ -22,8 +22,6 @@ import org.example.clinicjava.ultils.account.CustomUserDetails;
 import org.example.clinicjava.ultils.email.EmailService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,7 +48,7 @@ public class AccountServiceImpl implements AccountService {
         CustomUserDetails userDetails  = CommonUtils.getUserDetails();
 
         String password = generatePassword(8);
-        Role role = roleRepository.findByRoleName(Constant.ROLE_NAME.ROLE_DOCTOR)
+        Role role = roleRepository.findByRoleName(Constant.ROLE_NAME.ROLE_DOCTOR.getName())
                 .orElseThrow(() -> new AppException(StatusCode.BAD_REQUEST.withMessage(Constant.ERROR_MESSAGE.ROLE_EXISTS)));
         Account account = new Account();
         account.setUsername(request.getUsername());
@@ -102,7 +100,7 @@ public class AccountServiceImpl implements AccountService {
         }
         accountMapper.updateEntityFromDto(request, existingAccount);
 
-        CustomUserDetails userDetails  = CommonUtils.getUserDetails();
+        CustomUserDetails userDetails = CommonUtils.getUserDetails();
         if (userDetails != null) {
             existingAccount.setModifiedBy(userDetails.getAccountId());
             existingAccount.setModifiedDate(LocalDateTime.now());

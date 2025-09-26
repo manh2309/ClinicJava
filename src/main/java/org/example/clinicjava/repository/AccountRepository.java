@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -20,4 +21,12 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
             "AND (:email IS NULL OR (a.email = :email)) " +
             "AND (:accountId IS NULL OR (a.accountId <> :accountId)) ")
     Boolean findByEmailAndAccountId(@Param("email") String email, @Param("accountId") Long accountId);
+
+    @Query(value = "SELECT a FROM Account a" +
+                   " WHERE a.isActive = 1 AND a.accountId = :accountId AND a.roleId = :roleId ")
+    Optional<Account> findByIdAndRoleDoctor(@Param("accountId") Long accountId, @Param("roleId") Long roleId);
+
+    @Query(value = "SELECT a.accountId FROM Account a" +
+            " WHERE a.isActive = 1 AND a.roleId = :roleId ")
+    List<Long> findByRoleId(@Param("roleId") Long roleId);
 }

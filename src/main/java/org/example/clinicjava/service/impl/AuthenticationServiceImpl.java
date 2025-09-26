@@ -37,7 +37,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         if (accountRepository.findByUsername(request.getUsername()).isPresent()) {
             throw new AppException(StatusCode.BAD_REQUEST.withMessage(Constant.ERROR_MESSAGE.ACCOUNT_EXISTS));
         }
-        Role role = roleRepository.findByRoleName(Constant.ROLE_NAME.ROLE_PATIENT)
+        Role role = roleRepository.findByRoleName(Constant.ROLE_NAME.ROLE_PATIENT.getName())
                 .orElseThrow(() -> new AppException(StatusCode.BAD_REQUEST.withMessage(Constant.ERROR_MESSAGE.ROLE_EXISTS)));
         Account account = new Account();
         account.setUsername(request.getUsername());

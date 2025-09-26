@@ -18,21 +18,20 @@ public class Payment {
     @Column(name = "PAYMENT_ID")
     private Long paymentId;
 
-    @ManyToOne
-    @JoinColumn(name = "ORDER_ID")
-    private Order order;
+    @Column(name = "APPOINTMENT_ID")
+    private Long appointmentId;
 
     @Column(name = "AMOUNT")
     private String amount;
 
     @Column(name = "METHOD")
-    private String method;
+    private Long method;
 
     @Column(name = "STATUS")
-    private String status;
+    private Long status;
 
-    @Column(name = "TRANSACTION_ID")
-    private String transactionId;
+    @Column(name = "TRANSACTION_CODE")
+    private String transactionCode;
 
     @Column(name = "CREATED_DATE")
     private LocalDateTime createdDate;
