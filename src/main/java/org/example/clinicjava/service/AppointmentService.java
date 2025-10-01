@@ -10,4 +10,7 @@ public interface AppointmentService {
     ApiResponse<Object> createAppointment(CreateAppointmentRequest request, Boolean isSaveDraft);
     ApiResponse<Object> getMyAppointments(Pageable pageable, HttpServletRequest httpServletRequest);
     ApiResponse<Object> cancelAppointments(Long appointmentId, Long patientId);
+    ApiResponse<Object> confirmAppointments(Long appointmentId, Long accountId);
+    ApiResponse<Object> completeAppointment(Long appointmentId);
+
 }

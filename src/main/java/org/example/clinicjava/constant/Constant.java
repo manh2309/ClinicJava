@@ -17,6 +17,9 @@ public class Constant {
         public static final String PHONE_REGEX = "Số điện thoại phải hợp lệ (VD: 0987654321 hoặc +84987654321)";
         public static final String APPOINTMENT_NOT_EQUAL = "Bạn không được phép hủy cuộc hẹn này";
         public static final String APPOINTMENT_NOT_CANCELLED = "Cuộc hẹn không thể bị hủy";
+        public static final String APPOINTMENT_NOT_CONFIRM = "Cuộc hẹn không thể xác nhận";
+        public static final String DOCTOT_FORBIDDEN = "Chỉ bác sĩ phụ trách mới được đánh dấu hoàn thành";
+        public static final String  APPOINTMENT_NOT_COMPLETED= "Chỉ có thể hoàn thành lịch hẹn đã được xác nhận";
     }
 
 //    public static final class ROLE_NAME {
@@ -52,6 +55,8 @@ public class Constant {
         public static final String DOCTOR_CREATE_ACCOUNT = "Tài khoản bác sĩ được tạo thành công";
         public static final String APPOINTMENT_CREATE_SUCCESS = "Lịch khám đã được tạo thành công";
         public static final String APPOINTMENT_CANCELLED_SUCCESS = "Hủy lịch khám thành công";
+        public static final String APPOINTMENT_CONFIRM_SUCCESS = "Xác nhận lịch khám thành công";
+        public static final String APPOINTMENT_COMPLETED_SUCCESS = "Đánh dấu hoàn thành thành công";
         public static final String UPDATE_ACCOUNT = "Cập nhật tài khoản thành công";
         public static final String DELETE_ACCOUNT = "Xóa tài khoản thành công";
     }
@@ -59,6 +64,11 @@ public class Constant {
     public static final class ACTIVE {
         public static final Long IS_ACTIVE = 1L;
         public static final Long IS_NOT_ACTIVE = 0L;
+    }
+
+    public static final class SAVE {
+        public static final Long IS_SAVE_DRAFT = 1L;
+        public static final Long IS_SAVE = 0L;
     }
 
     public static final class APOINTMENT_STATUS {
@@ -71,7 +81,9 @@ public class Constant {
         public static final Long UNPAID = 0L;
         public static final Long PAID = 1L;
         public static final Long CANCELLED = 2L;
+    }
 
+    public static final class PAYMENT_METHOD {
         public static final Long UNDEFINED = 0L;
         public static final Long BANK_TRANSFER = 1L;
         public static final Long MOMO = 2L;

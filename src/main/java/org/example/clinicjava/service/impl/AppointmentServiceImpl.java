@@ -32,6 +32,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -55,22 +56,24 @@ public class AppointmentServiceImpl implements AppointmentService {
         CustomUserDetails userDetails = CommonUtils.getUserDetails();
         if (userDetails != null) {
             entity.setPatientId(userDetails.getAccountId());
+            entity.setCreatedBy(userDetails.getAccountId());
+            entity.setCreatedDate(LocalDateTime.now());
         }
         entity.setDoctorId(doctorsAccount.getAccountId());
         entity.setIsActive(Constant.ACTIVE.IS_ACTIVE);
         entity.setFee(DEFAULT_FEE);
         entity.setStatus(Constant.APOINTMENT_STATUS.PENDING);
         if (Boolean.TRUE.equals(isSaveDraft)) {
-            entity.setIsDraft(1L); // lưu nháp
+            entity.setIsDraft(Constant.SAVE.IS_SAVE_DRAFT); // lưu nháp
         } else {
-            entity.setIsDraft(0L); // chính thức
+            entity.setIsDraft(Constant.SAVE.IS_SAVE); // chính thức
         }
         appointmentRepository.save(entity);
 
         Payment payment = Payment.builder()
                 .appointmentId(entity.getAppointmentId())
                 .amount(String.valueOf(DEFAULT_FEE))
-                .method(Constant.PAYMENT_STATUS.UNDEFINED)             // chưa chọn phương thức
+                .method(Constant.PAYMENT_METHOD.UNDEFINED)             // chưa chọn phương thức
                 .status(Constant.PAYMENT_STATUS.UNPAID)                // trạng thái ban đầu
                 .createdDate(LocalDateTime.now())
                 .createdBy(userDetails != null ? userDetails.getAccountId() : null)
@@ -107,11 +110,24 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new AppException(StatusCode.BAD_REQUEST.withMessage(Constant.ERROR_MESSAGE.APPOINTMENT_NOT_EQUAL));
         }
 
-        if(!List.of(Constant.APOINTMENT_STATUS.PENDING, Constant.APOINTMENT_STATUS.CONFIRMED).contains(existingAppointment.getStatus())){
+        if(!Constant.ACTIVE.IS_ACTIVE.equals(existingAppointment.getIsActive())
+            || !List.of(Constant.APOINTMENT_STATUS.PENDING, Constant.APOINTMENT_STATUS.CONFIRMED).contains(existingAppointment.getStatus())){
             throw new AppException(StatusCode.BAD_REQUEST.withMessage(Constant.ERROR_MESSAGE.APPOINTMENT_NOT_CANCELLED));
         }
         existingAppointment.setStatus(Constant.APOINTMENT_STATUS.CANCELLED);
+        existingAppointment.setModifiedDate(LocalDateTime.now());
+        existingAppointment.setModifiedBy(patientId);
         appointmentRepository.save(existingAppointment);
+
+        // update payment liên quan (nếu có)
+        paymentRepository.findByAppointmentId(appointmentId).ifPresent(payment -> {
+            if (!payment.getStatus().equals(Constant.PAYMENT_STATUS.CANCELLED)) {
+                payment.setStatus(Constant.PAYMENT_STATUS.CANCELLED);
+                payment.setModifiedDate(LocalDateTime.now());
+                payment.setModifiedBy(patientId);
+                paymentRepository.save(payment);
+            }
+        });
 
         Long doctorId = existingAppointment.getDoctorId();
         List<Long> accountAdmin = accountRepository.findByRoleId(Constant.ROLE_NAME.ROLE_ADMIN.getCode());
@@ -129,6 +145,77 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .code(StatusCode.SUCCESS.getCode())
                 .message(StatusCode.SUCCESS.getMessage())
                 .result(Constant.MESSAGE.APPOINTMENT_CANCELLED_SUCCESS)
+                .build();
+    }
+
+    @Override
+    public ApiResponse<Object> confirmAppointments(Long appointmentId, Long accountId) {
+        Appointment existingAppointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new AppException(StatusCode.BAD_REQUEST.withMessage(Constant.ERROR_MESSAGE.DATA_NOT_FOUND)));
+
+        Account adminAccount = accountRepository.findById(accountId)
+                .orElseThrow(() -> new AppException(StatusCode.BAD_REQUEST.withMessage(Constant.ERROR_MESSAGE.DATA_NOT_FOUND)));
+
+        if(!Constant.ACTIVE.IS_ACTIVE.equals(existingAppointment.getIsActive())
+                || !Objects.equals(Constant.APOINTMENT_STATUS.PENDING, existingAppointment.getStatus())
+                || !Constant.SAVE.IS_SAVE.equals(existingAppointment.getIsDraft())){
+            throw new AppException(StatusCode.BAD_REQUEST.withMessage(Constant.ERROR_MESSAGE.APPOINTMENT_NOT_CONFIRM));
+        }
+        existingAppointment.setStatus(Constant.APOINTMENT_STATUS.CONFIRMED);
+        existingAppointment.setModifiedDate(LocalDateTime.now());
+        existingAppointment.setModifiedBy(adminAccount.getAccountId());
+        appointmentRepository.save(existingAppointment);
+        Long doctorId = existingAppointment.getDoctorId();
+        List<Long> accountAdmin = accountRepository.findByRoleId(Constant.ROLE_NAME.ROLE_ADMIN.getCode());
+
+        List<Long> recipients = new ArrayList<>();
+        recipients.add(doctorId);
+        recipients.addAll(accountAdmin);
+        notificationService.sendNotificationToMany(
+                recipients,
+                "Lịch hẹn #" + appointmentId + " đã được xác nhận",
+                "Hệ thống đã được xác nhận lịch hẹn #" + appointmentId,
+                "APPOINTMENT_CONFIRMATION"
+        );
+        return ApiResponse.builder()
+                .code(StatusCode.SUCCESS.getCode())
+                .message(StatusCode.SUCCESS.getMessage())
+                .result(Constant.MESSAGE.APPOINTMENT_CONFIRM_SUCCESS)
+                .build();
+    }
+
+    @Override
+    public ApiResponse<Object> completeAppointment(Long appointmentId) {
+        // Lấy appointment từ DB
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new AppException(StatusCode.BAD_REQUEST.withMessage(Constant.ERROR_MESSAGE.DATA_NOT_FOUND)));
+
+        CustomUserDetails userDetails = CommonUtils.getUserDetails();
+
+        if (!appointment.getDoctorId().equals(userDetails.getAccountId())) {
+            throw new AppException(StatusCode.BAD_REQUEST.withMessage(Constant.ERROR_MESSAGE.DOCTOT_FORBIDDEN));
+        }
+
+        if (!Constant.ACTIVE.IS_ACTIVE.equals(appointment.getIsActive())
+             && !Constant.APOINTMENT_STATUS.CONFIRMED.equals(appointment.getStatus())) {
+            throw new AppException(StatusCode.BAD_REQUEST.withMessage(Constant.ERROR_MESSAGE.APPOINTMENT_NOT_COMPLETED));
+        }
+
+        appointment.setStatus(Constant.APOINTMENT_STATUS.COMPLETED);
+        appointment.setModifiedDate(LocalDateTime.now());
+        appointmentRepository.save(appointment);
+
+        notificationService.sendNotification(
+                appointment.getPatientId(),
+                "Lịch hẹn #" + appointmentId + " đã hoàn thành",
+                "Bác sĩ đã đánh dấu lịch hẹn #" + appointmentId + " là hoàn thành",
+                "APPOINTMENT_COMPLETED"
+        );
+
+        return ApiResponse.builder()
+                .code(StatusCode.SUCCESS.getCode())
+                .message(StatusCode.SUCCESS.getMessage())
+                .result(Constant.MESSAGE.APPOINTMENT_COMPLETED_SUCCESS)
                 .build();
     }
 }

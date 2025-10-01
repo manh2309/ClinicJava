@@ -57,4 +57,7 @@ public class Appointment {
 
     @Column(name = "MODIFIED_DATE")
     private LocalDateTime modifiedDate;
+
+    @Column(name = "MODIFIED_BY")
+    private Long modifiedBy;
 }

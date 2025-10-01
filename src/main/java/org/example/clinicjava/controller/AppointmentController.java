@@ -38,4 +38,15 @@ public class AppointmentController {
         CustomUserDetails userDetails = CommonUtils.getUserDetails();
         return appointmentService.cancelAppointments(appointmentId, userDetails.getAccountId());
     }
+
+    @PutMapping("/confirm/{id}")
+    public ApiResponse<Object> confirmAppointment(@PathVariable("id") Long appointmentId) {
+        CustomUserDetails userDetails = CommonUtils.getUserDetails();
+        return appointmentService.confirmAppointments(appointmentId, userDetails.getAccountId());
+    }
+
+    @PutMapping("/complete/{id}")
+    public ApiResponse<Object> completeAppointment(@PathVariable("id") Long appointmentId) {
+        return appointmentService.completeAppointment(appointmentId);
+    }
 }
