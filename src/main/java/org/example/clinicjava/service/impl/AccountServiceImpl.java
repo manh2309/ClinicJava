@@ -136,6 +136,31 @@ public class AccountServiceImpl implements AccountService {
                 .build();
     }
 
+    @Override
+    public ApiResponse<Object> getPatientsForDoctor(Pageable pageable) {
+        CustomUserDetails user = CommonUtils.getUserDetails();
+
+        Page<AccountResponse> patients =
+                accountRepository.findPatientsByDoctorId(user.getAccountId(), pageable).map(accountMapper::toDto);
+
+        return ApiResponse.builder()
+                .code(StatusCode.SUCCESS.getCode())
+                .result(new PageResponse<>(patients.getContent(), patients.getTotalPages(), patients.getTotalElements()))
+                .build();
+    }
+
+    @Override
+    public ApiResponse<Object> getPatientsForAdmin(Pageable pageable) {
+
+        Page<AccountResponse> patients =
+                accountRepository.findPatientsById(pageable).map(accountMapper::toDto);
+
+        return ApiResponse.builder()
+                .code(StatusCode.SUCCESS.getCode())
+                .result(new PageResponse<>(patients.getContent(), patients.getTotalPages(), patients.getTotalElements()))
+                .build();
+    }
+
     private String generatePassword(int length) {
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%";
         SecureRandom random = new SecureRandom();

@@ -47,14 +47,22 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/v1/auth/register", "/v1/auth/login").permitAll()
                         .requestMatchers("/v1/auth/logout").authenticated()
-                        .requestMatchers("/v1/appointments/create", "/v1/appointments/cancel/{id}").hasAnyAuthority("ROLE_PATIENT")
-                        .requestMatchers("/v1/appointments/complete/{id}").hasAnyAuthority("ROLE_DOCTOR")
-                        .requestMatchers("/v1/appointments/list").hasAnyAuthority("ROLE_PATIENT", "ROLE_DOCTOR", "ROLE_ADMIN")
-                        .requestMatchers("/v1/account/create", "v1/account/list", "v1/account/delete/{id}", "/v1/appointments/confirm/{id}").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers("/v1/account/update/{id}").hasAnyAuthority("ROLE_PATIENT", "ROLE_DOCTOR", "ROLE_ADMIN")
-                        .requestMatchers("/v1/orders/**").hasAuthority("ROLE_PATIENT")
+                        .requestMatchers("/v1/appointments/create", "/v1/appointments/cancel/{id}", "/v1/payments/method/{paymentId}").hasAnyAuthority("ROLE_PATIENT")
+                        .requestMatchers("/v1/appointments/complete/{id}", "/v1/medical-records/create",
+                                "/v1/patients/list").hasAnyAuthority("ROLE_DOCTOR")
+                        .requestMatchers("/v1/appointments/list",
+                                "/v1/medical-records/patient/{patientId}",
+                                "/v1/medical-records/{id}",
+                                "/v1/account/update/{id}",
+                                "/v1/medical-records/searchList").hasAnyAuthority("ROLE_PATIENT", "ROLE_DOCTOR", "ROLE_ADMIN")
+                        .requestMatchers("/v1/account/create",
+                                "v1/account/list",
+                                "v1/account/delete/{id}",
+                                "/v1/appointments/confirm/{id}",
+                                "/v1/payments/confirm-cash/{paymentId}",
+                                "/v1/patients/list-patient-admin").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/v1/payment/**").hasAuthority("ROLE_PATIENT")
-                        .requestMatchers("/notfication/**").permitAll() // WebSocket endpoint
+                        .requestMatchers("/notfication/**", "/v1/payments/callback").permitAll() // WebSocket endpoint
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(e -> e

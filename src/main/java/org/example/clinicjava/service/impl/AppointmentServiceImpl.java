@@ -68,7 +68,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         } else {
             entity.setIsDraft(Constant.SAVE.IS_SAVE); // chính thức
         }
-        appointmentRepository.save(entity);
+        entity = appointmentRepository.save(entity);
 
         Payment payment = Payment.builder()
                 .appointmentId(entity.getAppointmentId())
@@ -80,6 +80,17 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .build();
 
         paymentRepository.save(payment);
+        List<Long> accountAdmin = accountRepository.findByRoleId(Constant.ROLE_NAME.ROLE_ADMIN.getCode());
+
+        List<Long> recipients = new ArrayList<>();
+        recipients.add(doctorsAccount.getAccountId());
+        recipients.addAll(accountAdmin);
+        notificationService.sendNotificationToMany(
+                recipients,
+                "Lịch hẹn mới #" + entity.getAppointmentId(),
+                "Bệnh nhân " + userDetails.getUsername() + " vừa đặt lịch khám mới.",
+                "APPOINTMENT_CREATED"
+        );
         return ApiResponse.builder()
                 .code(StatusCode.SUCCESS.getCode())
                 .message(StatusCode.SUCCESS.getMessage())

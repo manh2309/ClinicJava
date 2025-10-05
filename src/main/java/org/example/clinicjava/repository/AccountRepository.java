@@ -1,5 +1,6 @@
 package org.example.clinicjava.repository;
 
+import org.example.clinicjava.dto.response.AccountResponse;
 import org.example.clinicjava.entity.Account;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,4 +30,30 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     @Query(value = "SELECT a.accountId FROM Account a" +
             " WHERE a.isActive = 1 AND a.roleId = :roleId ")
     List<Long> findByRoleId(@Param("roleId") Long roleId);
+
+    @Query("""
+    SELECT DISTINCT new org.example.clinicjava.dto.response.AccountResponse(
+        p.accountId,
+        p.fullName,
+        p.phone,
+        COUNT(a.appointmentId)
+    )
+    FROM Appointment a
+    JOIN Account p ON a.patientId = p.accountId
+    WHERE a.doctorId = :doctorId
+      AND a.isActive = 1
+    GROUP BY p.accountId, p.fullName, p.phone
+    ORDER BY MAX(a.createdDate) DESC
+""")
+    Page<Account> findPatientsByDoctorId(@Param("doctorId") Long doctorId, Pageable pageable);
+
+    @Query("""
+    SELECT a
+    FROM Account a
+    WHERE a.isActive = 1
+      AND a.roleId = 1
+    GROUP BY a.accountId, a.fullName, a.phone
+    ORDER BY MAX(a.createdDate) DESC
+""")
+    Page<Account> findPatientsById(Pageable pageable);
 }

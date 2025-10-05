@@ -25,4 +25,10 @@ public class AccountResponse {
     private Long modifiedBy;
     private LocalDateTime modifiedDate;
     private Long roleId;
+
+    public AccountResponse(Long accountId, String fullName, String phone, Long totalAppointments) {
+        this.accountId = accountId;
+        this.fullName = fullName;
+        this.phone = phone;
+    }
 }

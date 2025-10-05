@@ -12,7 +12,6 @@ import org.mapstruct.factory.Mappers;
         componentModel = "spring",
         uses = {})
 public interface AccountMapper extends EntityMapper<AccountResponse, Account>{
-    AccountMapper INSTANCE = Mappers.getMapper(AccountMapper.class);
 
     AccountResponse toDto(Account entity);
 

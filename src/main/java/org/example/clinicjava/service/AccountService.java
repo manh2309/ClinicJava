@@ -11,4 +11,6 @@ public interface AccountService {
     ApiResponse<Object> searchList(Pageable pageable);
     ApiResponse<Object> updateAccount(Long account, UpdateAccountRequest request);
     ApiResponse<Object> deleteAccount(Long accountId);
+    ApiResponse<Object> getPatientsForDoctor(Pageable pageable);
+    ApiResponse<Object> getPatientsForAdmin(Pageable pageable);
 }

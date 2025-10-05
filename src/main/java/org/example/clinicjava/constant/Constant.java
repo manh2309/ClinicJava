@@ -19,7 +19,12 @@ public class Constant {
         public static final String APPOINTMENT_NOT_CANCELLED = "Cuộc hẹn không thể bị hủy";
         public static final String APPOINTMENT_NOT_CONFIRM = "Cuộc hẹn không thể xác nhận";
         public static final String DOCTOT_FORBIDDEN = "Chỉ bác sĩ phụ trách mới được đánh dấu hoàn thành";
-        public static final String  APPOINTMENT_NOT_COMPLETED= "Chỉ có thể hoàn thành lịch hẹn đã được xác nhận";
+        public static final String  APPOINTMENT_NOT_COMPLETED = "Chỉ có thể hoàn thành lịch hẹn đã được xác nhận";
+        public static final String  PAYMENT_NOT_CASH = "Phương thức thanh toán không phải là TIỀN MẶT";
+        public static final String  PAYMENT_METHOD_NOT_FOUND = "Phương thức thanh toán không hợp lệ";
+        public static final String  MEDICAL_ROLE_FORBIDDEN = "Chỉ bác sĩ mới có thể tạo hồ sơ khám bệnh";
+        public static final String  APPOINTMENT_NOT_FOUND = "Không tìm thấy lịch hẹn";
+        public static final String  APPOINTMENT_NOT_COMPLETED_V1 = "Chỉ có thể tạo hồ sơ sau khi hoàn thành lịch hẹn";
     }
 
 //    public static final class ROLE_NAME {
@@ -59,6 +64,11 @@ public class Constant {
         public static final String APPOINTMENT_COMPLETED_SUCCESS = "Đánh dấu hoàn thành thành công";
         public static final String UPDATE_ACCOUNT = "Cập nhật tài khoản thành công";
         public static final String DELETE_ACCOUNT = "Xóa tài khoản thành công";
+        public static final String PAYMENT_SUCCESS = "Xử lý thanh toán thành công";
+        public static final String PAYMENT_CASH_SUCCESS = "Xác nhận thanh toán tiền mặt thành công";
+        public static final String MEDICALRECORD_SUCCESS = "Tạo hồ sơ khám bệnh thành công";
+        public static final String NOTIFICATION_IS_ALL_READ = "Tất cả thông báo đã được đánh dấu là đã đọc";
+        public static final String NOTIFICATION_IS_READ = "Thông báo đã được đánh dấu là đã đọc";
     }
 
     public static final class ACTIVE {

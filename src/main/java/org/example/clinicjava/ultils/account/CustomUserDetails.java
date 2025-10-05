@@ -16,4 +16,11 @@ public class CustomUserDetails extends User {
     public Long getAccountId() {
         return accountId;
     }
+
+    public String getRole() {
+        return getAuthorities().stream()
+                .findFirst()
+                .map(GrantedAuthority::getAuthority)
+                .orElse(null);
+    }
 }
