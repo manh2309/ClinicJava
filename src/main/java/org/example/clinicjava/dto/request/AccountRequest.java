@@ -1,5 +1,6 @@
 package org.example.clinicjava.dto.request;
 
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -28,4 +29,5 @@ public class AccountRequest {
             message = Constant.ERROR_MESSAGE.PHONE_REGEX
     )
     private String phone;
+    private Long roleId;
 }

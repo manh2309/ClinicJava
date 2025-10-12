@@ -15,6 +15,8 @@ import java.util.Optional;
 @Repository
 public interface AccountRepository extends JpaRepository<Account, Long> {
     Optional<Account> findByUsername(String username);
+    Optional<Account> findByEmail(String email);
+
     @Query("SELECT a FROM Account a")
     Page<Account> searchList(Pageable pageable);
 

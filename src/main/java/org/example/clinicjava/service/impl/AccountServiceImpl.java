@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,11 +46,19 @@ public class AccountServiceImpl implements AccountService {
         if (accountRepository.findByUsername(request.getUsername()).isPresent()) {
             throw new AppException(StatusCode.BAD_REQUEST.withMessage(Constant.ERROR_MESSAGE.ACCOUNT_EXISTS));
         }
+
+        if (accountRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new AppException(StatusCode.BAD_REQUEST.withMessage(Constant.ERROR_MESSAGE.ACCOUNT_EMAIL_UNIQUE));
+        }
         CustomUserDetails userDetails  = CommonUtils.getUserDetails();
 
         String password = generatePassword(8);
-        Role role = roleRepository.findByRoleName(Constant.ROLE_NAME.ROLE_DOCTOR.getName())
+        Role role = roleRepository.findById(request.getRoleId())
                 .orElseThrow(() -> new AppException(StatusCode.BAD_REQUEST.withMessage(Constant.ERROR_MESSAGE.ROLE_EXISTS)));
+        if(!List.of(Constant.ROLE_NAME.ROLE_ADMIN.getName(), Constant.ROLE_NAME.ROLE_ADMIN.getName()).contains(role.getRoleName())) {
+            throw new AppException(StatusCode.BAD_REQUEST.withMessage(Constant.ERROR_MESSAGE.ROLE_NOT_CREATED));
+        }
+
         Account account = new Account();
         account.setUsername(request.getUsername());
         account.setPassword(passwordEncoder.encode(password));
@@ -64,7 +73,8 @@ public class AccountServiceImpl implements AccountService {
         }
 
         accountRepository.save(account);
-        String subject = Constant.MESSAGE.DOCTOR_CREATE_ACCOUNT;
+        String subject = String.format(Constant.MESSAGE.DOCTOR_CREATE_ACCOUNT,
+                role.getRoleName().equals(Constant.ROLE_NAME.ROLE_ADMIN.getName()) ? "admin" : "bác sĩ");
         String body = String.format(
                 Constant.MESSAGE.MAIL_BODY,
                 request.getFullName(),
@@ -77,7 +87,7 @@ public class AccountServiceImpl implements AccountService {
         return ApiResponse.builder()
                 .code(StatusCode.SUCCESS.getCode())
                 .message(StatusCode.SUCCESS.getMessage())
-                .result(Constant.MESSAGE.DOCTOR_CREATE_ACCOUNT)
+                .result(subject)
                 .build();
     }
 

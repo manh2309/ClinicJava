@@ -9,5 +9,5 @@ import org.mapstruct.Mapper;
         uses = {})
 public interface NotificationMapper extends EntityMapper<NotificationResponse, Notification> {
 
-    Notification toDto(NotificationResponse notificationResponse);
+    NotificationResponse toDto(Notification notification);
 }

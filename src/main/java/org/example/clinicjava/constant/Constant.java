@@ -12,8 +12,10 @@ public class Constant {
         public static final String ACCOUNT_FULL_NAME_REGEX = "Tên chỉ được chứa chữ và khoảng trắng";
         public static final String ACCOUNT_EMAIL_REQUIRED = "Email không được để trống";
         public static final String ACCOUNT_EMAIL_FORMAT = "Email không đúng định dạng";
+        public static final String ACCOUNT_EMAIL_UNIQUE = "Email này đã được sử dụng";
         public static final String ACCOUNT_EMAIL_DUPPLICATE = "Email này đã được sử dụng";
         public static final String ROLE_EXISTS = "Chức vụ không tồn tại";
+        public static final String ROLE_NOT_CREATED = "Chức vụ này không thể tạo tài khoản";
         public static final String PHONE_REGEX = "Số điện thoại phải hợp lệ (VD: 0987654321 hoặc +84987654321)";
         public static final String APPOINTMENT_NOT_EQUAL = "Bạn không được phép hủy cuộc hẹn này";
         public static final String APPOINTMENT_NOT_CANCELLED = "Cuộc hẹn không thể bị hủy";
@@ -57,7 +59,7 @@ public class Constant {
 
     public static final class MESSAGE {
         public static final String MAIL_BODY = "Xin chào %s,\n\nTài khoản bác sĩ của bạn đã được tạo:\n\nUsername: %s\nPassword: %s\n\nVui lòng đổi mật khẩu sau khi đăng nhập.";
-        public static final String DOCTOR_CREATE_ACCOUNT = "Tài khoản bác sĩ được tạo thành công";
+        public static final String DOCTOR_CREATE_ACCOUNT = "Tài khoản %s được tạo thành công";
         public static final String APPOINTMENT_CREATE_SUCCESS = "Lịch khám đã được tạo thành công";
         public static final String APPOINTMENT_CANCELLED_SUCCESS = "Hủy lịch khám thành công";
         public static final String APPOINTMENT_CONFIRM_SUCCESS = "Xác nhận lịch khám thành công";
